@@ -18,7 +18,12 @@ const MARGIN_TWIPS = 1440
 const USABLE_WIDTH_TWIPS = A4_WIDTH_TWIPS - 2 * MARGIN_TWIPS
 const USABLE_HEIGHT_TWIPS = A4_HEIGHT_TWIPS - 2 * MARGIN_TWIPS
 const CELL_GAP_TWIPS = 200
-const TWIPS_PER_EMU = 635
+
+// docx 库 ImageRun.transformation 接收像素值（内部 * 9525 转 EMU）
+const PX_PER_TWIP = 96 / 1440
+const USABLE_WIDTH_PX = Math.round(USABLE_WIDTH_TWIPS * PX_PER_TWIP)
+const USABLE_HEIGHT_PX = Math.round(USABLE_HEIGHT_TWIPS * PX_PER_TWIP)
+const CELL_GAP_PX = Math.round(CELL_GAP_TWIPS * PX_PER_TWIP)
 
 export interface ProcessedImage {
   dataUrl: string
@@ -84,14 +89,14 @@ function getGrid(count: number): { cols: number; rows: number } {
 
 function buildGridPage(images: ProcessedImage[]): (Table | Paragraph)[] {
   const { cols, rows } = getGrid(images.length)
-  const cellWidth = Math.floor(
+  const cellWidthTwips = Math.floor(
     (USABLE_WIDTH_TWIPS - (cols - 1) * CELL_GAP_TWIPS) / cols,
   )
-  const cellHeight = Math.floor(
+  const cellHeightTwips = Math.floor(
     (USABLE_HEIGHT_TWIPS - (rows - 1) * CELL_GAP_TWIPS) / rows,
   )
-  const cellWidthEmu = cellWidth * TWIPS_PER_EMU
-  const cellHeightEmu = cellHeight * TWIPS_PER_EMU
+  const cellWidthPx = Math.round(cellWidthTwips * PX_PER_TWIP)
+  const cellHeightPx = Math.round(cellHeightTwips * PX_PER_TWIP)
 
   const tableRows: TableRow[] = []
   let imgIndex = 0
@@ -102,9 +107,9 @@ function buildGridPage(images: ProcessedImage[]): (Table | Paragraph)[] {
       const img = imgIndex < images.length ? images[imgIndex++] : null
       cells.push(
         new TableCell({
-          width: { size: cellWidth, type: WidthType.DXA },
+          width: { size: cellWidthTwips, type: WidthType.DXA },
           children: img
-            ? [buildImageParagraph(img, cellWidthEmu, cellHeightEmu)]
+            ? [buildImageParagraph(img, cellWidthPx, cellHeightPx)]
             : [new Paragraph('')],
         }),
       )
@@ -122,20 +127,17 @@ function buildGridPage(images: ProcessedImage[]): (Table | Paragraph)[] {
 
 function buildVerticalPage(images: ProcessedImage[]): (Table | Paragraph)[] {
   const count = images.length
-  const usableHeightEmu = USABLE_HEIGHT_TWIPS * TWIPS_PER_EMU
-  const gapEmu = 200 * TWIPS_PER_EMU
-  const totalGapEmu = (count - 1) * gapEmu
-  const maxHeightEmu = Math.floor((usableHeightEmu - totalGapEmu) / count)
-  const maxWidthEmu = USABLE_WIDTH_TWIPS * TWIPS_PER_EMU
+  const totalGapPx = (count - 1) * CELL_GAP_PX
+  const maxHeightPx = Math.floor((USABLE_HEIGHT_PX - totalGapPx) / count)
 
   const paragraphs: Paragraph[] = []
 
   for (let i = 0; i < count; i++) {
-    const { width, height } = fitEmu(
+    const { width, height } = fitPixels(
       images[i].width,
       images[i].height,
-      maxWidthEmu,
-      maxHeightEmu,
+      USABLE_WIDTH_PX,
+      maxHeightPx,
     )
     const base64 = images[i].dataUrl.split(',')[1]
 
@@ -159,10 +161,10 @@ function buildVerticalPage(images: ProcessedImage[]): (Table | Paragraph)[] {
 
 function buildImageParagraph(
   img: ProcessedImage,
-  maxWidthEmu: number,
-  maxHeightEmu: number,
+  maxWidthPx: number,
+  maxHeightPx: number,
 ): Paragraph {
-  const { width, height } = fitEmu(img.width, img.height, maxWidthEmu, maxHeightEmu)
+  const { width, height } = fitPixels(img.width, img.height, maxWidthPx, maxHeightPx)
   const base64 = img.dataUrl.split(',')[1]
 
   return new Paragraph({
@@ -177,7 +179,7 @@ function buildImageParagraph(
   })
 }
 
-function fitEmu(
+function fitPixels(
   imgWidth: number,
   imgHeight: number,
   maxWidth: number,
