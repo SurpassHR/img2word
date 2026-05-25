@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react'
 import { useAppState, useAppDispatch } from './store'
-import type { ImageEdits, CropRect } from './types'
+import type { ImageEdits } from './types'
 import ImageViewer from './ImageViewer'
 import ImageTools from './ImageTools'
 import CropOverlay from './CropOverlay'
@@ -18,12 +18,12 @@ export default function MainPanel() {
   }, [])
 
   const handleCropApply = useCallback(
-    (crop: CropRect | null) => {
+    (crop: { x: number; y: number; width: number; height: number } | null) => {
       if (!activeImage) return
       dispatch({ type: 'UPDATE_EDITS', payload: { id: activeImage.id, edits: { crop } } })
       setIsCropping(false)
     },
-    [activeImage?.id, dispatch],
+    [activeImage?.id],
   )
 
   const handleCropCancel = useCallback(() => {
@@ -77,4 +77,3 @@ export default function MainPanel() {
     </main>
   )
 }
-
