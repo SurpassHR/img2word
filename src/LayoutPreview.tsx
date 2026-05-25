@@ -59,7 +59,7 @@ export default function LayoutPreview() {
           {imagesPerPage} 张/页 · {images.length} 张图片 · 共 {totalPages} 页
         </span>
       </div>
-      <div className="flex gap-3 overflow-x-auto pb-1">
+      <div className="flex flex-wrap gap-2 md:gap-3">
         {pages.map((pageImages, i) => (
           <PageCard
             key={i}
@@ -81,10 +81,10 @@ function PageCard({ pageNumber, pageImages, imagesPerPage, layoutMode, startInde
   const emptySlots = imagesPerPage - pageImages.length
 
   return (
-    <div className="flex flex-shrink-0 flex-col items-center gap-1">
+    <div className="flex flex-col items-center gap-1">
       <div
-        className="flex flex-shrink-0 flex-col rounded border border-gray-300 bg-white p-1.5 shadow-sm"
-        style={{ width: 140, aspectRatio: '1 / 1.414' }}
+        className="flex flex-col rounded border border-gray-300 bg-white p-1 shadow-sm"
+        style={{ width: 'min(120px, 22vw)', aspectRatio: '1 / 1.414' }}
       >
         {layoutMode === 'vertical' ? (
           <div className="flex flex-1 flex-col gap-0.5 overflow-hidden">
