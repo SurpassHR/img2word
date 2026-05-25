@@ -83,7 +83,7 @@ function PageCard({ pageNumber, pageImages, imagesPerPage, layoutMode, startInde
   return (
     <div className="flex flex-col items-center gap-1">
       <div
-        className="flex flex-col rounded border border-gray-300 bg-white p-1 shadow-sm"
+        className="flex flex-col overflow-hidden rounded border border-gray-300 bg-white p-1 shadow-sm"
         style={{ width: 'min(120px, 22vw)', aspectRatio: '1 / 1.414' }}
       >
         {layoutMode === 'vertical' ? (
