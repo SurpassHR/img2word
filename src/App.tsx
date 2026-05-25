@@ -1,9 +1,14 @@
-function App() {
+import { AppProvider } from './store'
+import Toolbar from './Toolbar'
+import Workspace from './Workspace'
+
+export default function App() {
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900">
-      <h1 className="text-2xl font-bold p-4">img2word</h1>
-    </div>
+    <AppProvider>
+      <div className="flex h-screen flex-col bg-gray-50 text-gray-900">
+        <Toolbar />
+        <Workspace />
+      </div>
+    </AppProvider>
   )
 }
-
-export default App
