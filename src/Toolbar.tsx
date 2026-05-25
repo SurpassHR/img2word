@@ -28,14 +28,14 @@ export default function Toolbar() {
 
         <h1 className="text-lg font-bold">img2word</h1>
 
-        {/* 每页图片数选择器 — 移动端隐藏 */}
-        <div className="ml-4 hidden items-center gap-1 md:flex">
-          <span className="mr-1 text-sm text-gray-500">每页:</span>
+        {/* 每页图片数选择器 */}
+        <div className="ml-2 flex items-center gap-0.5 md:ml-4 md:gap-1">
+          <span className="hidden text-sm text-gray-500 md:inline">每页:</span>
           {PER_PAGE_OPTIONS.map((n) => (
             <button
               key={n}
               onClick={() => dispatch({ type: 'SET_IMAGES_PER_PAGE', payload: n })}
-              className={`rounded px-2 py-0.5 text-sm font-medium transition-colors ${
+              className={`rounded px-1.5 py-0.5 text-xs font-medium transition-colors md:px-2 md:py-0.5 md:text-sm ${
                 imagesPerPage === n
                   ? 'bg-blue-600 text-white'
                   : 'text-gray-600 hover:bg-gray-100'
