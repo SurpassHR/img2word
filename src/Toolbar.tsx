@@ -2,7 +2,7 @@ import { useAppState, useAppDispatch } from './store'
 import type { ImagesPerPage, LayoutMode } from './types'
 import ExportButton from './ExportButton'
 
-const PER_PAGE_OPTIONS: ImagesPerPage[] = [1, 2, 4, 6]
+const PER_PAGE_OPTIONS: ImagesPerPage[] = [1, 2, 3, 4, 5, 6]
 const LAYOUT_OPTIONS: { mode: LayoutMode; label: string }[] = [
   { mode: 'grid', label: '网格' },
   { mode: 'vertical', label: '垂直' },

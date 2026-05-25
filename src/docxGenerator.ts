@@ -81,7 +81,9 @@ function getGrid(count: number): { cols: number; rows: number } {
   switch (count) {
     case 1: return { cols: 1, rows: 1 }
     case 2: return { cols: 1, rows: 2 }
+    case 3: return { cols: 1, rows: 3 }
     case 4: return { cols: 2, rows: 2 }
+    case 5: return { cols: 1, rows: 5 }
     case 6: return { cols: 3, rows: 2 }
     default: return { cols: 1, rows: count }
   }

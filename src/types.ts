@@ -28,7 +28,7 @@ export interface ImageItem {
 export type LayoutMode = 'grid' | 'vertical'
 
 /** 每页图片数量 */
-export type ImagesPerPage = 1 | 2 | 4 | 6
+export type ImagesPerPage = 1 | 2 | 3 | 4 | 5 | 6
 
 /** 导出状态 */
 export type ExportStatus = 'idle' | 'generating' | 'done'
