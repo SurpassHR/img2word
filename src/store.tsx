@@ -5,8 +5,7 @@ import {
   type Dispatch,
   type ReactNode,
 } from 'react'
-import type { Action, AppState, ImageItem } from './types'
-import { DEFAULT_EDITS } from './types'
+import type { Action, AppState } from './types'
 
 const initialState: AppState = {
   images: [],

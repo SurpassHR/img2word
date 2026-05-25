@@ -1,13 +1,12 @@
 import { useAppState, useAppDispatch } from './store'
 import type { ImagesPerPage } from './types'
+import ExportButton from './ExportButton'
 
 const PER_PAGE_OPTIONS: ImagesPerPage[] = [1, 2, 4, 6]
 
 export default function Toolbar() {
-  const { imagesPerPage, exportStatus, images } = useAppState()
+  const { imagesPerPage } = useAppState()
   const dispatch = useAppDispatch()
-
-  const canExport = images.length > 0 && exportStatus !== 'generating'
 
   return (
     <header className="flex shrink-0 items-center justify-between border-b border-gray-200 bg-white px-3 py-2">
@@ -44,19 +43,7 @@ export default function Toolbar() {
         </div>
       </div>
 
-      <button
-        disabled={!canExport}
-        onClick={() => dispatch({ type: 'SET_EXPORT_STATUS', payload: 'generating' })}
-        className="rounded bg-blue-600 px-4 py-1.5 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-        title={images.length === 0 ? '请先导入图片' : undefined}
-      >
-        <span className="hidden sm:inline">
-          {exportStatus === 'generating' ? '生成中...' : '导出 Word'}
-        </span>
-        <span className="sm:hidden">
-          {exportStatus === 'generating' ? '...' : '导出'}
-        </span>
-      </button>
+      <ExportButton />
     </header>
   )
 }
