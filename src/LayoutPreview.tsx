@@ -106,7 +106,7 @@ function PageCard({ pageNumber, pageImages, imagesPerPage, layoutMode, startInde
           </div>
         ) : (
           <div
-            className="grid flex-1 gap-0.5"
+            className="grid flex-1 gap-0.5 overflow-hidden"
             style={{
               gridTemplateColumns: `repeat(${cols}, 1fr)`,
               gridTemplateRows: `repeat(${rows}, 1fr)`,
