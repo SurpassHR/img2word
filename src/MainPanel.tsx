@@ -4,6 +4,7 @@ import type { ImageEdits, CropRect } from './types'
 import ImageViewer from './ImageViewer'
 import ImageTools from './ImageTools'
 import CropOverlay from './CropOverlay'
+import LayoutPreview from './LayoutPreview'
 
 export default function MainPanel() {
   const { images, activeImageId } = useAppState()
@@ -76,33 +77,3 @@ export default function MainPanel() {
   )
 }
 
-/** 根据当前排版设置的网格预览 */
-function LayoutPreview() {
-  const { images, imagesPerPage } = useAppState()
-
-  if (images.length === 0) return null
-
-  const cols = imagesPerPage <= 2 ? imagesPerPage : imagesPerPage === 4 ? 2 : 3
-
-  return (
-    <div className="text-xs text-gray-500">
-      <span className="font-medium">排版预览</span>
-      <span className="ml-2">
-        {imagesPerPage} 张/页 · {images.length} 张图片 · 共 {Math.ceil(images.length / imagesPerPage)} 页
-      </span>
-      <div
-        className="mt-2 grid gap-1 rounded border border-gray-200 bg-gray-50 p-1"
-        style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
-      >
-        {Array.from({ length: imagesPerPage }).map((_, i) => (
-          <div
-            key={i}
-            className="flex aspect-[3/4] items-center justify-center rounded border border-dashed border-gray-300 bg-white text-[10px] text-gray-400"
-          >
-            {i < images.length ? `图${i + 1}` : '空'}
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
