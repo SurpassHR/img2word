@@ -13,6 +13,23 @@ export default function MainPanel() {
 
   const activeImage = images.find((img) => img.id === activeImageId) ?? null
 
+  const handleCropToggle = useCallback(() => {
+    setIsCropping((prev) => !prev)
+  }, [])
+
+  const handleCropApply = useCallback(
+    (crop: CropRect | null) => {
+      if (!activeImage) return
+      dispatch({ type: 'UPDATE_EDITS', payload: { id: activeImage.id, edits: { crop } } })
+      setIsCropping(false)
+    },
+    [activeImage?.id, dispatch],
+  )
+
+  const handleCropCancel = useCallback(() => {
+    setIsCropping(false)
+  }, [])
+
   if (!activeImage) {
     return (
       <main className="flex flex-1 items-center justify-center p-6">
@@ -30,22 +47,6 @@ export default function MainPanel() {
   const edits = activeImage.edits
   const update = (partial: Partial<ImageEdits>) =>
     dispatch({ type: 'UPDATE_EDITS', payload: { id: activeImage.id, edits: partial } })
-
-  const handleCropToggle = useCallback(() => {
-    setIsCropping((prev) => !prev)
-  }, [])
-
-  const handleCropApply = useCallback(
-    (crop: CropRect | null) => {
-      update({ crop })
-      setIsCropping(false)
-    },
-    [activeImage.id],
-  )
-
-  const handleCropCancel = useCallback(() => {
-    setIsCropping(false)
-  }, [])
 
   return (
     <main className="flex flex-1 flex-col overflow-hidden">
