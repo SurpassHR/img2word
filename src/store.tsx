@@ -5,13 +5,23 @@ import {
   type Dispatch,
   type ReactNode,
 } from 'react'
-import type { Action, AppState } from './types'
+import type { Action, AppState, LayoutMode } from './types'
+
+const LAYOUT_MODE_KEY = 'img2word_layoutMode'
+
+function loadLayoutMode(): LayoutMode {
+  try {
+    const saved = localStorage.getItem(LAYOUT_MODE_KEY)
+    if (saved === 'grid' || saved === 'vertical') return saved
+  } catch { /* localStorage 不可用时忽略 */ }
+  return 'vertical'
+}
 
 const initialState: AppState = {
   images: [],
   activeImageId: null,
   sidebarOpen: true,
-  layoutMode: 'grid',
+  layoutMode: loadLayoutMode(),
   imagesPerPage: 2,
   exportStatus: 'idle',
 }
@@ -65,6 +75,7 @@ function reducer(state: AppState, action: Action): AppState {
     }
 
     case 'SET_LAYOUT_MODE':
+      try { localStorage.setItem(LAYOUT_MODE_KEY, action.payload) } catch { /* 忽略 */ }
       return { ...state, layoutMode: action.payload }
 
     case 'SET_IMAGES_PER_PAGE':
