@@ -1,10 +1,11 @@
 import { useAppState } from './store'
-import type { ImagesPerPage, ImageItem } from './types'
+import type { ImagesPerPage, ImageItem, LayoutMode } from './types'
 
 interface PageCardProps {
   pageNumber: number
   pageImages: ImageItem[]
   imagesPerPage: ImagesPerPage
+  layoutMode: LayoutMode
   startIndex: number
   endIndex: number
 }
@@ -22,8 +23,13 @@ function getGrid(perPage: ImagesPerPage): { cols: number; rows: number } {
   }
 }
 
+const LAYOUT_LABELS: Record<LayoutMode, string> = {
+  grid: '网格',
+  vertical: '垂直',
+}
+
 export default function LayoutPreview() {
-  const { images, imagesPerPage } = useAppState()
+  const { images, imagesPerPage, layoutMode } = useAppState()
 
   if (images.length === 0) return null
 
@@ -37,7 +43,12 @@ export default function LayoutPreview() {
   return (
     <div className="text-xs text-gray-500">
       <div className="mb-2 flex items-center justify-between">
-        <span className="font-medium">排版预览</span>
+        <span className="font-medium">
+          排版预览
+          <span className="ml-1.5 rounded bg-blue-100 px-1.5 py-0.5 text-[11px] font-medium text-blue-700">
+            {LAYOUT_LABELS[layoutMode]}
+          </span>
+        </span>
         <span className="tabular-nums">
           {imagesPerPage} 张/页 · {images.length} 张图片 · 共 {totalPages} 页
         </span>
@@ -49,6 +60,7 @@ export default function LayoutPreview() {
             pageNumber={i + 1}
             pageImages={pageImages}
             imagesPerPage={imagesPerPage}
+            layoutMode={layoutMode}
             startIndex={i * imagesPerPage + 1}
             endIndex={i * imagesPerPage + pageImages.length}
           />
@@ -58,42 +70,60 @@ export default function LayoutPreview() {
   )
 }
 
-function PageCard({ pageNumber, pageImages, imagesPerPage, startIndex, endIndex }: PageCardProps) {
+function PageCard({ pageNumber, pageImages, imagesPerPage, layoutMode, startIndex, endIndex }: PageCardProps) {
   const { cols, rows } = getGrid(imagesPerPage)
   const emptySlots = imagesPerPage - pageImages.length
 
   return (
     <div className="flex flex-shrink-0 flex-col items-center gap-1">
-      {/* 模拟 A4 页面卡片 */}
       <div
         className="flex flex-shrink-0 flex-col rounded border border-gray-300 bg-white p-1.5 shadow-sm"
         style={{ width: 140, aspectRatio: '1 / 1.414' }}
       >
-        <div
-          className="grid flex-1 gap-0.5"
-          style={{
-            gridTemplateColumns: `repeat(${cols}, 1fr)`,
-            gridTemplateRows: `repeat(${rows}, 1fr)`,
-          }}
-        >
-          {pageImages.map((img) => (
-            <div key={img.id} className="overflow-hidden rounded-sm border border-gray-200">
-              <img
-                src={img.preview}
-                alt={img.original.name}
-                className="h-full w-full object-cover"
+        {layoutMode === 'vertical' ? (
+          <div className="flex flex-1 flex-col gap-0.5 overflow-hidden">
+            {pageImages.map((img) => (
+              <div key={img.id} className="min-h-0 flex-1 overflow-hidden rounded-sm border border-gray-200">
+                <img
+                  src={img.preview}
+                  alt={img.original.name}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            ))}
+            {Array.from({ length: emptySlots }).map((_, i) => (
+              <div
+                key={`empty-${i}`}
+                className="min-h-0 flex-1 rounded-sm border border-dashed border-gray-200 bg-gray-50"
               />
-            </div>
-          ))}
-          {Array.from({ length: emptySlots }).map((_, i) => (
-            <div
-              key={`empty-${i}`}
-              className="rounded-sm border border-dashed border-gray-200 bg-gray-50"
-            />
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div
+            className="grid flex-1 gap-0.5"
+            style={{
+              gridTemplateColumns: `repeat(${cols}, 1fr)`,
+              gridTemplateRows: `repeat(${rows}, 1fr)`,
+            }}
+          >
+            {pageImages.map((img) => (
+              <div key={img.id} className="overflow-hidden rounded-sm border border-gray-200">
+                <img
+                  src={img.preview}
+                  alt={img.original.name}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            ))}
+            {Array.from({ length: emptySlots }).map((_, i) => (
+              <div
+                key={`empty-${i}`}
+                className="rounded-sm border border-dashed border-gray-200 bg-gray-50"
+              />
+            ))}
+          </div>
+        )}
       </div>
-      {/* 页码及图片范围 */}
       <span className="whitespace-nowrap text-[11px] text-gray-400">
         第 {pageNumber} 页
         <span className="ml-1 text-gray-300">

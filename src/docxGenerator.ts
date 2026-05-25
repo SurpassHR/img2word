@@ -10,6 +10,7 @@ import {
   WidthType,
   AlignmentType,
 } from 'docx'
+import type { LayoutMode } from './types'
 
 const A4_WIDTH_TWIPS = 11906
 const A4_HEIGHT_TWIPS = 16838
@@ -25,12 +26,15 @@ export interface ProcessedImage {
   height: number
 }
 
-/** 将图片按 imagesPerPage 分组，按网格排版生成 A4 docx，返回 Blob */
+/** 将图片按 imagesPerPage 分组，按指定排版模式生成 A4 docx，返回 Blob */
 export async function generateDocx(
   images: ProcessedImage[],
   imagesPerPage: number,
+  layoutMode: LayoutMode,
 ): Promise<Blob> {
   const pages = chunkArray(images, imagesPerPage)
+
+  const buildPage = layoutMode === 'vertical' ? buildVerticalPage : buildGridPage
 
   const doc = new Document({
     sections: [
@@ -47,11 +51,11 @@ export async function generateDocx(
           },
         },
         children: pages.flatMap((pageImages, i) => {
-          const children: (Table | Paragraph)[] = [buildPageTable(pageImages)]
+          const pageChildren = buildPage(pageImages)
           if (i < pages.length - 1) {
-            children.push(new Paragraph({ children: [new PageBreak()] }))
+            pageChildren.push(new Paragraph({ children: [new PageBreak()] }))
           }
-          return children
+          return pageChildren
         }),
       },
     ],
@@ -78,7 +82,7 @@ function getGrid(count: number): { cols: number; rows: number } {
   }
 }
 
-function buildPageTable(images: ProcessedImage[]): Table {
+function buildGridPage(images: ProcessedImage[]): (Table | Paragraph)[] {
   const { cols, rows } = getGrid(images.length)
   const cellWidth = Math.floor(
     (USABLE_WIDTH_TWIPS - (cols - 1) * CELL_GAP_TWIPS) / cols,
@@ -108,10 +112,49 @@ function buildPageTable(images: ProcessedImage[]): Table {
     tableRows.push(new TableRow({ children: cells }))
   }
 
-  return new Table({
-    width: { size: USABLE_WIDTH_TWIPS, type: WidthType.DXA },
-    rows: tableRows,
-  })
+  return [
+    new Table({
+      width: { size: USABLE_WIDTH_TWIPS, type: WidthType.DXA },
+      rows: tableRows,
+    }),
+  ]
+}
+
+function buildVerticalPage(images: ProcessedImage[]): (Table | Paragraph)[] {
+  const count = images.length
+  const usableHeightEmu = USABLE_HEIGHT_TWIPS * TWIPS_PER_EMU
+  const gapEmu = 200 * TWIPS_PER_EMU
+  const totalGapEmu = (count - 1) * gapEmu
+  const maxHeightEmu = Math.floor((usableHeightEmu - totalGapEmu) / count)
+  const maxWidthEmu = USABLE_WIDTH_TWIPS * TWIPS_PER_EMU
+
+  const paragraphs: Paragraph[] = []
+
+  for (let i = 0; i < count; i++) {
+    const { width, height } = fitEmu(
+      images[i].width,
+      images[i].height,
+      maxWidthEmu,
+      maxHeightEmu,
+    )
+    const base64 = images[i].dataUrl.split(',')[1]
+
+    paragraphs.push(
+      new Paragraph({
+        alignment: AlignmentType.CENTER,
+        spacing: { after: i < count - 1 ? 200 : 0 },
+        children: [
+          new ImageRun({
+            type: 'png',
+            data: base64,
+            transformation: { width, height },
+          }),
+        ],
+      }),
+    )
+  }
+
+  return paragraphs
 }
 
 function buildImageParagraph(

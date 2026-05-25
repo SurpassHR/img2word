@@ -1,11 +1,15 @@
 import { useAppState, useAppDispatch } from './store'
-import type { ImagesPerPage } from './types'
+import type { ImagesPerPage, LayoutMode } from './types'
 import ExportButton from './ExportButton'
 
 const PER_PAGE_OPTIONS: ImagesPerPage[] = [1, 2, 4, 6]
+const LAYOUT_OPTIONS: { mode: LayoutMode; label: string }[] = [
+  { mode: 'grid', label: '网格' },
+  { mode: 'vertical', label: '垂直' },
+]
 
 export default function Toolbar() {
-  const { imagesPerPage } = useAppState()
+  const { imagesPerPage, layoutMode } = useAppState()
   const dispatch = useAppDispatch()
 
   return (
@@ -38,6 +42,23 @@ export default function Toolbar() {
               }`}
             >
               {n}
+            </button>
+          ))}
+        </div>
+
+        {/* 布局模式切换 */}
+        <div className="ml-2 flex items-center gap-0.5">
+          {LAYOUT_OPTIONS.map(({ mode, label }) => (
+            <button
+              key={mode}
+              onClick={() => dispatch({ type: 'SET_LAYOUT_MODE', payload: mode })}
+              className={`rounded px-2 py-0.5 text-sm font-medium transition-colors ${
+                layoutMode === mode
+                  ? 'bg-blue-600 text-white'
+                  : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              {label}
             </button>
           ))}
         </div>

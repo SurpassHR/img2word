@@ -11,6 +11,7 @@ const initialState: AppState = {
   images: [],
   activeImageId: null,
   sidebarOpen: true,
+  layoutMode: 'grid',
   imagesPerPage: 2,
   exportStatus: 'idle',
 }
@@ -62,6 +63,9 @@ function reducer(state: AppState, action: Action): AppState {
         ),
       }
     }
+
+    case 'SET_LAYOUT_MODE':
+      return { ...state, layoutMode: action.payload }
 
     case 'SET_IMAGES_PER_PAGE':
       return { ...state, imagesPerPage: action.payload }

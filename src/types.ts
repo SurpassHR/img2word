@@ -24,6 +24,9 @@ export interface ImageItem {
   edits: ImageEdits
 }
 
+/** 排版模式 */
+export type LayoutMode = 'grid' | 'vertical'
+
 /** 每页图片数量 */
 export type ImagesPerPage = 1 | 2 | 4 | 6
 
@@ -35,6 +38,7 @@ export interface AppState {
   images: ImageItem[]
   activeImageId: string | null
   sidebarOpen: boolean
+  layoutMode: LayoutMode
   imagesPerPage: ImagesPerPage
   exportStatus: ExportStatus
 }
@@ -46,6 +50,7 @@ export type Action =
   | { type: 'REORDER_IMAGES'; payload: { fromIndex: number; toIndex: number } }
   | { type: 'SET_ACTIVE_IMAGE'; payload: string | null }
   | { type: 'UPDATE_EDITS'; payload: { id: string; edits: Partial<ImageEdits> } }
+  | { type: 'SET_LAYOUT_MODE'; payload: LayoutMode }
   | { type: 'SET_IMAGES_PER_PAGE'; payload: ImagesPerPage }
   | { type: 'SET_EXPORT_STATUS'; payload: ExportStatus }
   | { type: 'TOGGLE_SIDEBAR' }

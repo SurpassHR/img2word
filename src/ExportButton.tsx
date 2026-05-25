@@ -4,7 +4,7 @@ import { applyEdits } from './imageEngine'
 import { generateDocx, type ProcessedImage } from './docxGenerator'
 
 export default function ExportButton() {
-  const { images, imagesPerPage, exportStatus } = useAppState()
+  const { images, imagesPerPage, layoutMode, exportStatus } = useAppState()
   const dispatch = useAppDispatch()
 
   const canExport = images.length > 0 && exportStatus !== 'generating'
@@ -23,7 +23,7 @@ export default function ExportButton() {
         processed.push({ dataUrl, ...dimensions })
       }
 
-      const blob = await generateDocx(processed, imagesPerPage)
+      const blob = await generateDocx(processed, imagesPerPage, layoutMode)
       downloadBlob(blob, 'img2word.docx')
 
       dispatch({ type: 'SET_EXPORT_STATUS', payload: 'done' })
@@ -34,7 +34,7 @@ export default function ExportButton() {
       console.error('导出失败:', err)
       dispatch({ type: 'SET_EXPORT_STATUS', payload: 'idle' })
     }
-  }, [canExport, images, imagesPerPage, dispatch])
+  }, [canExport, images, imagesPerPage, layoutMode, dispatch])
 
   return (
     <button
